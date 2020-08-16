@@ -10,48 +10,59 @@ class API
     public const ENDPOINT = 'https://statsapi.mlb.com/api';
 
     /**
-     * The MLB API version to use for the request.
+     *  The MLB API version to use for the request.
      *
-     * @param string
-     *   The version string.
+     *  @var string
      */
     protected $version = 1;
 
     /**
-     * Type modifier used for different requests.
+     *  Type modifier used for different requests.
      *
-     * @param string
-     *   The type string.
+     *  @var string
      */
     protected $type = null;
 
     /**
-     * The URI to get.
+     *  The URI to get.
      *
-     * @param string
-     *   The URI string.
+     *  @var string
      */
     protected $uri = '';
 
     /**
-     * The from date.
+     *  The from date.
      *
-     * @param \Carbon\Carbon
-     *   The from date
+     *  @var \Carbon\Carbon
      */
     protected $from = null;
 
     /**
-     * The to date.
+     *  The to date.
      *
-     * @param \Carbon\Carbon
-     *   The to date
+     *  @var \Carbon\Carbon
      */
     protected $to = null;
+
+    /**
+     *  Hydration list.
+     *
+     *  @var array
+     */
+    protected $hydrate;
+
+    /**
+     *  Params.
+     *
+     *  @var array
+     */
+    protected $params;
 
     public function __construct()
     {
         $this->today();
+        $this->params = [];
+        $this->hydrate = [];
     }
 
     public static function get()
@@ -96,10 +107,27 @@ class API
         return $this;
     }
 
+    public function hydrate($hydrate)
+    {
+        if (!is_array($hydrate)) {
+            $this->hydrate[] = $hydrate;
+        } else {
+            $this->hydrate = array_merge($hydrate, $this->hydrate);
+        }
+
+        return $this;
+    }
+
+    public function params($params)
+    {
+        $this->params = array_merge($params, $this->params);
+        return $this;
+    }
+
     public function teams()
     {
-        return $this->uri('/teams?sportId=1')
-            ->request()['teams'];
+        return $this->params(['sportId' => 1])
+            ->basic('teams');
     }
 
     public function leagues()
@@ -109,7 +137,22 @@ class API
 
     public function divisions()
     {
-        return $this->uri('/divisions')->request()['divisions'];
+        return $this->basic('divisions');
+    }
+
+    public function venues()
+    {
+        return $this->basic('venues');
+    }
+
+    public function sports()
+    {
+        return $this->basic('sports');
+    }
+
+    protected function basic($thing)
+    {
+        return $this->uri('/' . $thing)->request()[$thing];
     }
 
     /**
@@ -121,9 +164,10 @@ class API
     public function players($ids = [])
     {
         $ids = implode(',', $ids);
-        $uri = '/people/?personIds=' . $ids . '&hydrate=currentTeam';
 
-        return $this->uri($uri)
+        return $this->uri('/people')
+            ->params(['personIds' => $ids])
+            ->hydrate('currentTeam')
             ->request()['people'];
     }
 
@@ -139,11 +183,8 @@ class API
             $this->type('40Man');
         }
 
-        $uri = '/teams/' . $teamKey
-            . '/roster/' . $this->type
-            . '?date=' . $this->from->format('m/d/Y');
-
-        return $this->uri($uri)
+        return $this->uri('/teams/' . $teamKey . '/roster/' . $this->type)
+            ->params(['date' => $this->from->format('m/d/Y')])
             ->request()['roster'];
     }
 
@@ -170,11 +211,6 @@ class API
         return $this->uri('/rosterTypes')->request();
     }
 
-    public function sports()
-    {
-        return $this->uri('/sports')->request()['sports'];
-    }
-
     /**
      * Get a specific game's content.
      *
@@ -187,25 +223,32 @@ class API
             ->request();
     }
 
-    public function games()
+    public function schedule()
     {
-        $uri = '/schedule?sportId=1&startDate='
-            . $this->from->format('m/d/Y')
-            . '&endDate='
-            . $this->to->format('m/d/Y');
+        $this->params([
+            'sportId' => 1,
+            'startDate' => $this->from->format('m/d/Y'),
+            'endDate' => $this->to->format('m/d/Y'),
+        ]);
 
         if ($this->type) {
-            $uri .= '&gameType=' . $this->type;
+            $this->params(['gameType' => $this->type]);
         }
 
-        return $this->uri($uri)
-            ->request();
+        return $this->uri('/schedule')->request();
     }
 
     public function request()
     {
         $client = new Client();
         $url = self::ENDPOINT . '/v' . $this->version . $this->uri;
+
+        if ($this->hydrate) {
+            $this->params(['hydrate', implode(',', $this->hydrate)]);
+        }
+        if ($this->params) {
+            $url .= '?' . implode('&', $this->params);
+        }
 
         try {
             $res = $client->get($url, [

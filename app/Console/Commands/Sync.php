@@ -7,6 +7,7 @@ use App\GameType;
 use App\League;
 use App\RosterType;
 use App\Sport;
+use App\Venue;
 use Illuminate\Console\Command;
 
 class Sync extends Command
@@ -42,7 +43,7 @@ class Sync extends Command
      */
     public function handle()
     {
-        $this->scaffolding();
+        //$this->scaffolding();
         $this->data();
     }
 
@@ -53,10 +54,11 @@ class Sync extends Command
         Sport::sync();
         League::sync();
         Division::sync();
+        Venue::sync();
     }
 
     protected function data()
     {
-        //Game::sync();
+        Game::sync();
     }
 }

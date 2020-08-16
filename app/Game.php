@@ -9,17 +9,12 @@ class Game extends Model
 {
     public static function sync()
     {
-        $incoming = API::get()->games();
+        foreach (API::get()->schedule()['dates'] as $date) {
+            foreach ($date['games'] as $incoming) {
+                static::UpdateOrCreate(['mlb_id' => $incoming['gamePk']], [
 
-        // foreach (API::get()->sports() as $incoming) {
-        //     if (!$sports->contains('mlb_id', '=', $incoming['id'])) {
-        //         $new = new static();
-        //         $new->mlb_id = $incoming['id'];
-        //         $new->code = $incoming['code'];
-        //         $new->name = $incoming['name'];
-        //         $new->abbrev = $incoming['abbreviation'];
-        //         $new->save();
-        //     }
-        // }
+                ]);
+            }
+        }
     }
 }
