@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -19,3 +20,9 @@ Route::get('/', function () {
 
 Route::get('login/yahoo', 'LoginController@redirectToProvider');
 Route::get('login/yahoo/callback', 'LoginController@handleProviderCallback');
+
+Route::get('/explore/{model}', 'ExploreController@index');
+
+Route::get('sync', function () {
+    Artisan::call('sync');
+});

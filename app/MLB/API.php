@@ -102,6 +102,16 @@ class API
             ->request()['teams'];
     }
 
+    public function leagues()
+    {
+        return $this->uri('/league')->request()['leagues'];
+    }
+
+    public function divisions()
+    {
+        return $this->uri('/divisions')->request()['divisions'];
+    }
+
     /**
      * Get player data.
      *
@@ -148,6 +158,21 @@ class API
         return $this->uri('/game/' . $key . '/feed/live')
             ->version(1.1)
             ->request();
+    }
+
+    public function gameTypes()
+    {
+        return $this->uri('/gameTypes')->request();
+    }
+
+    public function rosterTypes()
+    {
+        return $this->uri('/rosterTypes')->request();
+    }
+
+    public function sports()
+    {
+        return $this->uri('/sports')->request()['sports'];
     }
 
     /**

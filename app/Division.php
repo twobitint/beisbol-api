@@ -5,24 +5,25 @@ namespace App;
 use App\MLB\API;
 use Illuminate\Database\Eloquent\Model;
 
-class League extends Model
+class Division extends Model
 {
     public function sport()
     {
         return $this->belongsTo(Sport::class);
     }
 
-    public function divisions()
+    public function league()
     {
-        return $this->hasMany(Division::class);
+        return $this->belongsTo(League::class);
     }
 
     public static function sync()
     {
-        $leagues = static::all();
+        $divisions = static::all();
+        $leagues = League::all();
         $sports = Sport::all();
-        foreach (API::get()->leagues() as $incoming) {
-            if (!$leagues->contains('mlb_id', '=', $incoming['id'])) {
+        foreach (API::get()->divisions() as $incoming) {
+            if (!$divisions->contains('mlb_id', '=', $incoming['id'])) {
                 $new = new static();
                 $new->mlb_id = $incoming['id'];
                 $new->name = $incoming['name'];
@@ -31,6 +32,12 @@ class League extends Model
                 if ($sportId = $incoming['sport']['id'] ?? false) {
                     if ($sport = $sports->firstWhere('mlb_id', '=', $sportId)) {
                         $new->sport_id = $sport->id;
+                    }
+                }
+
+                if ($leagueId = $incoming['league']['id'] ?? false) {
+                    if ($league = $leagues->firstWhere('mlb_id', '=', $leagueId)) {
+                        $new->league_id = $league->id;
                     }
                 }
 
