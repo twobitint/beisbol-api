@@ -145,14 +145,21 @@ class API
         return $this->basic('venues');
     }
 
+    public function venue($id)
+    {
+        return $this->basic('venues', $id);
+    }
+
     public function sports()
     {
         return $this->basic('sports');
     }
 
-    protected function basic($thing)
+    protected function basic($thing, $id = null)
     {
-        return $this->uri('/' . $thing)->request()[$thing];
+        $response = $this->uri('/' . $thing . ($id ? '/' . $id : ''))
+            ->request();
+        return $id ? $response[$thing][0] : $response[$thing];
     }
 
     /**
@@ -247,7 +254,7 @@ class API
             $this->params(['hydrate', implode(',', $this->hydrate)]);
         }
         if ($this->params) {
-            $url .= '?' . implode('&', $this->params);
+            $url .= '?' . http_build_query($this->params);
         }
 
         try {

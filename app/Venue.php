@@ -12,8 +12,17 @@ class Venue extends Model
     //     return $this->hasMany(Team::class);
     // }
 
-    public static function sync()
+    public static function sync($id = null)
     {
+        static::unguard();
+
+        if ($id) {
+            $incoming = API::get()->venue($id);
+            return static::updateOrCreate(['mlb_id' => $id], [
+                'name' => $incoming['name'],
+            ]);
+        }
+
         $venues = static::all();
         foreach (API::get()->venues() as $incoming) {
             if (!$venues->contains('mlb_id', '=', $incoming['id'])) {

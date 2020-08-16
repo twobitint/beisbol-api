@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Division;
+use App\Game;
 use App\GameType;
 use App\League;
 use App\RosterType;
