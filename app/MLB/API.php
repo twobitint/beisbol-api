@@ -130,6 +130,12 @@ class API
             ->basic('teams');
     }
 
+    public function team($id)
+    {
+        return $this->params(['sportId' => 1])
+            ->basic('teams', $id);
+    }
+
     public function leagues()
     {
         return $this->uri('/league')->request()['leagues'];
@@ -211,6 +217,11 @@ class API
     public function gameTypes()
     {
         return $this->uri('/gameTypes')->request();
+    }
+
+    public function gameStatuses()
+    {
+        return $this->uri('/gameStatus')->request();
     }
 
     public function rosterTypes()

@@ -29,7 +29,7 @@ class CreateGamesTable extends Migration
             $table->string('daynight');
             $table->string('description')->nullable();
             $table->unsignedSmallInteger('scheduled_innings');
-            $table->unsignedSmallInteger('inning_break_length');
+            $table->unsignedSmallInteger('inning_break_length')->nullable();
             $table->unsignedSmallInteger('games_in_series');
             $table->unsignedSmallInteger('series_game_number');
             $table->string('series_description');

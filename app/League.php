@@ -3,10 +3,13 @@
 namespace App;
 
 use App\MLB\API;
+use App\Traits\CachesApiData;
 use Illuminate\Database\Eloquent\Model;
 
 class League extends Model
 {
+    use CachesApiData;
+
     public function sport()
     {
         return $this->belongsTo(Sport::class);

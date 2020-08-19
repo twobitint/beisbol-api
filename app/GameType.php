@@ -2,11 +2,14 @@
 
 namespace App;
 
+use App\Traits\CachesApiData;
 use App\MLB\API;
 use Illuminate\Database\Eloquent\Model;
 
 class GameType extends Model
 {
+    use CachesApiData;
+
     public static function sync()
     {
         $gameTypes = static::all();

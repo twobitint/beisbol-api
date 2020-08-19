@@ -23,7 +23,7 @@ class CreateTeamsTable extends Migration
             $table->string('code');
             $table->string('abbrev');
             $table->string('location');
-            $table->year('first_played');
+            $table->unsignedSmallInteger('first_played');
 
             $table->unsignedBigInteger('venue_id')->nullable();
             $table->unsignedBigInteger('league_id')->nullable();

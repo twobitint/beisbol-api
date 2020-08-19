@@ -3,10 +3,13 @@
 namespace App;
 
 use App\MLB\API;
+use App\Traits\CachesApiData;
 use Illuminate\Database\Eloquent\Model;
 
 class Venue extends Model
 {
+    use CachesApiData;
+
     // public function teams()
     // {
     //     return $this->hasMany(Team::class);

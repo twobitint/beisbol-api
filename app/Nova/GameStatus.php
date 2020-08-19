@@ -4,23 +4,23 @@ namespace App\Nova;
 
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\ID;
-use Laravel\Nova\Fields\BelongsTo;
+use Laravel\Nova\Http\Requests\NovaRequest;
 
-class Game extends Resource
+class GameStatus extends Resource
 {
     /**
      * The model the resource corresponds to.
      *
      * @var string
      */
-    public static $model = \App\Game::class;
+    public static $model = \App\GameStatus::class;
 
     /**
      * The single value that should be used to represent the resource when being displayed.
      *
      * @var string
      */
-    public static $title = 'id';
+    public static $title = 'description';
 
     /**
      * The columns that should be searched.
@@ -41,10 +41,6 @@ class Game extends Resource
     {
         return [
             ID::make(__('ID'), 'id')->sortable(),
-
-            BelongsTo::make('GameStatus', 'status')->sortable(),
-            BelongsTo::make('GameType', 'type')->sortable(),
-            BelongsTo::make('Venue')->sortable(),
         ];
     }
 
@@ -90,10 +86,5 @@ class Game extends Resource
     public function actions(Request $request)
     {
         return [];
-    }
-
-    public function title()
-    {
-        return $this->title;
     }
 }

@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Division;
 use App\Game;
+use App\GameStatus;
 use App\GameType;
 use App\League;
 use App\RosterType;
@@ -44,7 +45,7 @@ class Sync extends Command
      */
     public function handle()
     {
-        //$this->scaffolding();
+        $this->scaffolding();
         $this->data();
     }
 
@@ -52,10 +53,11 @@ class Sync extends Command
     {
         GameType::sync();
         RosterType::sync();
-        Sport::sync();
-        League::sync();
-        Division::sync();
-        Venue::sync();
+        GameStatus::sync();
+        // Sport::sync();
+        // League::sync();
+        // Division::sync();
+        // Venue::sync();
     }
 
     protected function data()

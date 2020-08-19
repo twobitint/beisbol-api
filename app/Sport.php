@@ -3,10 +3,13 @@
 namespace App;
 
 use App\MLB\API;
+use App\Traits\CachesApiData;
 use Illuminate\Database\Eloquent\Model;
 
 class Sport extends Model
 {
+    use CachesApiData;
+
     public function leagues()
     {
         return $this->hasMany(League::class);
