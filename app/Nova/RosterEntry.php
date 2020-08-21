@@ -3,33 +3,37 @@
 namespace App\Nova;
 
 use Illuminate\Http\Request;
+use Laravel\Nova\Fields\BelongsTo;
+use Laravel\Nova\Fields\Date;
 use Laravel\Nova\Fields\ID;
-use Laravel\Nova\Fields\Text;
 
-class RosterType extends Resource
+class RosterEntry extends Resource
 {
     /**
      * The model the resource corresponds to.
      *
      * @var string
      */
-    public static $model = \App\RosterType::class;
-
-    /**
-     * The single value that should be used to represent the resource when being displayed.
-     *
-     * @var string
-     */
-    public static $title = 'mlb_id';
+    public static $model = \App\RosterEntry::class;
 
     /**
      * The columns that should be searched.
      *
      * @var array
      */
-    public static $search = [
-        'mlb_id',
-    ];
+    public static $search = [];
+
+    /**
+     * The relationships that should be eager loaded on index queries.
+     *
+     * @var array
+     */
+    public static $with = ['player', 'rosterStatus'];
+
+    public function title()
+    {
+        return $this->player->full_name . ' - ' . $this->status->code;
+    }
 
     /**
      * Get the fields displayed by the resource.
@@ -40,9 +44,14 @@ class RosterType extends Resource
     public function fields(Request $request)
     {
         return [
-            ID::make(__('ID'), 'id')->sortable(),
-            Text::make('Code', 'mlb_id')->sortable(),
-            Text::make(__('Description'), 'description')->sortable(),
+            ID::make('Id')->sortable(),
+
+            BelongsTo::make('Player')->sortable(),
+            BelongsTo::make('Team')->sortable(),
+            BelongsTo::make('Status', 'rosterStatus', RosterStatus::class)->sortable(),
+            BelongsTo::make('Type', 'rosterType', RosterType::class)->sortable(),
+            Date::make('Start')->sortable(),
+            Date::make('End')->sortable(),
         ];
     }
 

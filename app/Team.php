@@ -40,6 +40,87 @@ class Team extends Model
         return $this->belongsTo(Team::class);
     }
 
+    public function fortyManRoster()
+    {
+        return $this->roster('40Man');
+    }
+
+    public function activeRoster()
+    {
+        return $this->roster();
+    }
+
+    protected function roster($type = 'active')
+    {
+        return $this->hasMany(RosterEntry::class)
+            ->current()
+            ->whereHas('rosterType', function ($query) use ($type) {
+                $query->where('roster_types.mlb_id', '=', $type);
+            })->with('player');
+    }
+
+    public function syncFortyManRoster()
+    {
+        $this->syncRoster('40Man');
+    }
+
+    public function syncActiveRoster()
+    {
+        $this->syncRoster('active');
+    }
+
+    protected function syncRoster($typeId = null)
+    {
+        static::unguard();
+
+        $type = RosterType::where('mlb_id', '=', $typeId)->first();
+        $roster = ($typeId == 'active' ? $this->activeRoster : $this->fortyManRoster)
+            ->keyBy('player.mlb_id');
+        $liveRosterData = API::get()->type($typeId)->roster($this->mlb_id);
+
+        // sync players not on the roster.
+        $toSync = [];
+        foreach ($liveRosterData as $incoming) {
+            if (!$roster->has($incoming['person']['id'])) {
+                $toSync[] = $incoming['person']['id'];
+            }
+        }
+        if ($toSync) {
+            Player::sync($toSync);
+        }
+
+        foreach ($liveRosterData as $incoming) {
+            $status = RosterStatus::fromData($incoming['status']);
+            $player = Player::getOrLoad($incoming['person']['id']);
+            $entry = $roster->firstWhere('player_id', '=', $player->id);
+
+            // deal with a new or modified entry.
+            if (!$entry || $entry->roster_status_id != $status->id) {
+                RosterEntry::create([
+                    'start' => now(),
+                    'roster_type_id' => $type->id,
+                    'player_id' => $player->id,
+                    'team_id' => $this->id,
+                    'roster_status_id' => $status->id,
+                ]);
+
+                if ($entry) {
+                    $entry->update(['end' => now()->subDay()]);
+                }
+            }
+        }
+
+        // remove players who are not in the live data.
+        foreach ($roster as $rosterEntry) {
+            $found = array_filter($liveRosterData, function ($incoming) use ($rosterEntry) {
+                return $incoming['person']['id'] == $rosterEntry->player->mlb_id;
+            });
+            if (!$found) {
+                $rosterEntry->update(['end' => now()->subDay()]);
+            }
+        }
+    }
+
     public static function sync($id = null)
     {
         static::unguard();

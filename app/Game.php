@@ -32,12 +32,22 @@ class Game extends Model
         return $this->belongsTo(Venue::class);
     }
 
-    public function home()
+    public function homeTeam()
     {
         return $this->belongsTo(Team::class);
     }
 
-    public function away()
+    public function awayTeam()
+    {
+        return $this->belongsTo(Team::class);
+    }
+
+    public function winningTeam()
+    {
+        return $this->belongsTo(Team::class);
+    }
+
+    public function losingTeam()
     {
         return $this->belongsTo(Team::class);
     }
@@ -51,8 +61,17 @@ class Game extends Model
 
                 $type = GameType::getOrLoad($incoming['gameType']);
                 $status = GameStatus::where('mlb_id', '=', $incoming['status']['statusCode'])->first();
-                $home = Team::getOrLoad($incoming['teams']['home']['team']['id']);
-                $away = Team::getOrLoad($incoming['teams']['away']['team']['id']);
+                $homeTeam = Team::getOrLoad($incoming['teams']['home']['team']['id']);
+                $awayTeam = Team::getOrLoad($incoming['teams']['away']['team']['id']);
+                $winningTeam = null;
+                $losingTeam = null;
+                if ($incoming['teams']['home']['isWinner'] ?? false) {
+                    $winningTeam = $homeTeam;
+                    $losingTeam = $awayTeam;
+                } elseif ($incoming['teams']['away']['isWinner'] ?? false) {
+                    $winningTeam = $awayTeam;
+                    $losingTeam = $homeTeam;
+                }
                 $venue = Venue::getOrLoad($incoming['venue']['id']);
 
                 static::UpdateOrCreate(['mlb_id' => $incoming['gamePk']], [
@@ -73,11 +92,21 @@ class Game extends Model
                     'series_description' => $incoming['seriesDescription'] ?? null,
                     'mlb_record_source' => $incoming['recordSource'],
 
-                    'type_id' => $type ? $type->id : null,
-                    'status_id' => $status ? $status->id : null,
-                    'home_team_id' => $home->id,
-                    'away_team_id' => $away->id,
-                    'venue_id' => $venue ? $venue->id : null,
+                    'away_record_wins' => $incoming['teams']['away']['leagueRecord']['wins'],
+                    'away_record_losses' => $incoming['teams']['away']['leagueRecord']['losses'],
+                    'away_score' => $incoming['teams']['away']['score'] ?? null,
+
+                    'home_record_wins' => $incoming['teams']['home']['leagueRecord']['wins'],
+                    'home_record_losses' => $incoming['teams']['home']['leagueRecord']['losses'],
+                    'home_score' => $incoming['teams']['home']['score'] ?? null,
+
+                    'type_id' => $type->id ?? null,
+                    'status_id' => $status->id ?? null,
+                    'home_team_id' => $homeTeam->id,
+                    'away_team_id' => $awayTeam->id,
+                    'winning_team_id' => $winningTeam->id ?? null,
+                    'losing_team_id' => $losingTeam->id ?? null,
+                    'venue_id' => $venue->id ?? null,
                 ]);
             }
         }

@@ -9,6 +9,7 @@ use App\GameType;
 use App\League;
 use App\RosterType;
 use App\Sport;
+use App\Team;
 use App\Venue;
 use Illuminate\Console\Command;
 
@@ -63,5 +64,9 @@ class Sync extends Command
     protected function data()
     {
         Game::sync();
+        foreach (Team::all() as $team) {
+            $team->syncFortyManRoster();
+            $team->syncActiveRoster();
+        }
     }
 }

@@ -3,24 +3,26 @@
 namespace App\Nova;
 
 use Illuminate\Http\Request;
+use Laravel\Nova\Fields\HasMany;
 use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Fields\Text;
+use Laravel\Nova\Http\Requests\NovaRequest;
 
-class RosterType extends Resource
+class RosterStatus extends Resource
 {
     /**
      * The model the resource corresponds to.
      *
      * @var string
      */
-    public static $model = \App\RosterType::class;
+    public static $model = \App\RosterStatus::class;
 
     /**
      * The single value that should be used to represent the resource when being displayed.
      *
      * @var string
      */
-    public static $title = 'mlb_id';
+    public static $title = 'description';
 
     /**
      * The columns that should be searched.
@@ -28,7 +30,7 @@ class RosterType extends Resource
      * @var array
      */
     public static $search = [
-        'mlb_id',
+        'description',
     ];
 
     /**
@@ -41,8 +43,10 @@ class RosterType extends Resource
     {
         return [
             ID::make(__('ID'), 'id')->sortable(),
-            Text::make('Code', 'mlb_id')->sortable(),
-            Text::make(__('Description'), 'description')->sortable(),
+            Text::make('Code'),
+            Text::make('Description'),
+
+            HasMany::make('Rostered Players', 'rosterEntries', RosterEntry::class),
         ];
     }
 

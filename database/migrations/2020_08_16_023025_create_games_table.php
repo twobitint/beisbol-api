@@ -35,10 +35,20 @@ class CreateGamesTable extends Migration
             $table->string('series_description');
             $table->string('mlb_record_source');
 
+            $table->unsignedSmallInteger('away_record_wins');
+            $table->unsignedSmallInteger('away_record_losses');
+            $table->unsignedSmallInteger('away_score')->nullable();
+
+            $table->unsignedSmallInteger('home_record_wins');
+            $table->unsignedSmallInteger('home_record_losses');
+            $table->unsignedSmallInteger('home_score')->nullable();
+
             $table->unsignedBigInteger('type_id')->nullable();
             $table->unsignedBigInteger('status_id')->nullable();
             $table->unsignedBigInteger('home_team_id')->nullable();
             $table->unsignedBigInteger('away_team_id')->nullable();
+            $table->unsignedBigInteger('winning_team_id')->nullable();
+            $table->unsignedBigInteger('losing_team_id')->nullable();
             $table->unsignedBigInteger('venue_id')->nullable();
         });
     }

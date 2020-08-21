@@ -3,7 +3,9 @@
 namespace App\Nova;
 
 use Illuminate\Http\Request;
+use Laravel\Nova\Fields\HasMany;
 use Laravel\Nova\Fields\ID;
+use Laravel\Nova\Fields\Text;
 use Laravel\Nova\Http\Requests\NovaRequest;
 
 class Team extends Resource
@@ -20,7 +22,7 @@ class Team extends Resource
      *
      * @var string
      */
-    public static $title = 'id';
+    public static $title = 'abbrev';
 
     /**
      * The columns that should be searched.
@@ -28,7 +30,8 @@ class Team extends Resource
      * @var array
      */
     public static $search = [
-        'id',
+        'name',
+        'abbrev',
     ];
 
     /**
@@ -40,7 +43,11 @@ class Team extends Resource
     public function fields(Request $request)
     {
         return [
-            ID::make(__('ID'), 'id')->sortable(),
+            ID::make('Id')->sortable(),
+            Text::make('Name')->sortable(),
+
+            HasMany::make('Active Roster', 'activeRoster', RosterEntry::class),
+            HasMany::make('40 Man Roster', 'fortyManRoster', RosterEntry::class),
         ];
     }
 
