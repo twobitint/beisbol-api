@@ -69,6 +69,11 @@ class Team extends Model
         $this->syncRoster('active');
     }
 
+    public function getApiUrlAttribute()
+    {
+        return API::url()->team($this->mlb_id);
+    }
+
     protected function syncRoster($typeId = null)
     {
         static::unguard();

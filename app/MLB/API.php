@@ -58,6 +58,10 @@ class API
      */
     protected $params;
 
+    protected $returnUrl;
+
+    protected $url;
+
     public function __construct()
     {
         $this->today();
@@ -68,6 +72,13 @@ class API
     public static function get()
     {
         return new static();
+    }
+
+    public static function url()
+    {
+        $class = new static();
+        $class->returnUrl = true;
+        return $class;
     }
 
     public function type($type)
@@ -132,8 +143,7 @@ class API
 
     public function team($id)
     {
-        return $this->params(['sportId' => 1])
-            ->basic('teams', $id);
+        return $this->basic('teams', $id);
     }
 
     public function leagues()
@@ -165,6 +175,11 @@ class API
     {
         $response = $this->uri('/' . $thing . ($id ? '/' . $id : ''))
             ->request();
+
+        if ($this->returnUrl) {
+            return $this->url;
+        }
+
         return $id ? $response[$thing][0] : $response[$thing];
     }
 
@@ -259,17 +274,21 @@ class API
     public function request()
     {
         $client = new Client();
-        $url = self::ENDPOINT . '/v' . $this->version . $this->uri;
+        $this->url = self::ENDPOINT . '/v' . $this->version . $this->uri;
 
         if ($this->hydrate) {
             $this->params(['hydrate', implode(',', $this->hydrate)]);
         }
         if ($this->params) {
-            $url .= '?' . http_build_query($this->params);
+            $this->url .= '?' . http_build_query($this->params);
+        }
+
+        if ($this->returnUrl) {
+            return $this->url;
         }
 
         try {
-            $res = $client->get($url, [
+            $res = $client->get($this->url, [
                 'timeout' => 5.0 // wait at most 5 seconds
             ]);
             return json_decode($res->getBody(), true);

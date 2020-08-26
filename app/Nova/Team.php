@@ -45,6 +45,9 @@ class Team extends Resource
         return [
             ID::make('Id')->sortable(),
             Text::make('Name')->sortable(),
+            Text::make('MLB Id', function () {
+                return '<a href="' . $this->apiUrl . '">' . $this->mlb_id . '</a>';
+            })->asHtml(),
 
             HasMany::make('Active Roster', 'activeRoster', RosterEntry::class),
             HasMany::make('40 Man Roster', 'fortyManRoster', RosterEntry::class),

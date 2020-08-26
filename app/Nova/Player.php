@@ -3,6 +3,7 @@
 namespace App\Nova;
 
 use Illuminate\Http\Request;
+use Laravel\Nova\Fields\HasMany;
 use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Fields\Text;
 use Laravel\Nova\Http\Requests\NovaRequest;
@@ -43,6 +44,8 @@ class Player extends Resource
         return [
             ID::make('Id')->sortable(),
             Text::make('Full Name')->sortable(),
+
+            HasMany::make('Roster Entries', 'rosterEntries', RosterEntry::class),
         ];
     }
 
