@@ -24,6 +24,11 @@ class Player extends Model
             // })->with('player');
     }
 
+    public function currentRosterEntries()
+    {
+        return $this->rosterEntries()->current();
+    }
+
     public static function sync($ids)
     {
         $multiple = is_array($ids);
